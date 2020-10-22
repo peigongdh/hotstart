@@ -211,8 +211,6 @@ func (srv *HotServer) handleSignals() {
 				log.Println("Fork err:", err)
 			}
 		default:
-			srv.logf("received %s, hotstart shtting down HTTP server.", sig)
-			srv.shutdown()
 		}
 	}
 }
