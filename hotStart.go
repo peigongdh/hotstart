@@ -59,7 +59,7 @@ func NewHotServer(server *http.Server) (srv *HotServer) {
 		shutdownChan: make(chan bool),
 	}
 
-	//服务启动之前钩子，命令行输出pid
+	// 服务启动之前钩子，命令行输出pid
 	srv.BeforeBegin = func(addr string) {
 		srv.logf(addr)
 	}
@@ -99,7 +99,7 @@ func (srv *HotServer) ListenAndServe() error {
 	srv.listener = ln
 
 	if srv.isChild {
-		//通知父进程不接受请求
+		// 通知父进程不接受请求
 		syscall.Kill(syscall.Getppid(), syscall.SIGTERM)
 	}
 
@@ -152,12 +152,12 @@ func (srv *HotServer) ListenAndServeTLS(certFile, keyFile string) error {
 服务启动
 */
 func (srv *HotServer) Serve() error {
-	//监听信号
+	// 监听信号
 	go srv.handleSignals()
 	err := srv.Server.Serve(srv.listener)
 
 	srv.logf("waiting for connections closed.")
-	//阻塞等待关闭
+	// 阻塞等待关闭
 	<-srv.shutdownChan
 	srv.logf("all connections closed.")
 
@@ -211,6 +211,8 @@ func (srv *HotServer) handleSignals() {
 				log.Println("Fork err:", err)
 			}
 		default:
+			srv.logf("received %s, hotstart shtting down HTTP server.", sig)
+			srv.shutdown()
 		}
 	}
 }

@@ -1,5 +1,5 @@
-module github.com/18211167516/hotstart/demo
+module github.com/peigongdh/hotstart/demo
 
-go 1.14
+go 1.13
 
-require github.com/18211167516/hotstart
+require github.com/peigongdh/hotstart
