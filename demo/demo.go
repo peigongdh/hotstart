@@ -27,6 +27,7 @@ func main() {
 		Addr:    address,
 		Handler: nil,
 	}
+	log.Println("main start listen")
 	err := Hot.ListenAndServer(s)
 	log.Printf("process with pid %d stoped, error: %s.\n", pid, err)
 }

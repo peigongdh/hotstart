@@ -86,6 +86,7 @@ func NewServer(addr string, handler http.Handler, readTimeout, writeTimeout time
 Listen http server
 */
 func (srv *HotServer) ListenAndServe() error {
+	srv.logf("HotServer ListenAndServe start")
 	addr := srv.Addr
 	if addr == "" {
 		addr = ":http"
@@ -100,6 +101,7 @@ func (srv *HotServer) ListenAndServe() error {
 
 	if srv.isChild {
 		// 通知父进程不接受请求
+		srv.logf("HotServer kill parent")
 		syscall.Kill(syscall.Getppid(), syscall.SIGTERM)
 	}
 
@@ -170,6 +172,9 @@ get lister
 func (srv *HotServer) getNetListener(addr string) (ln net.Listener, err error) {
 	if srv.isChild {
 		file := os.NewFile(LISTENER_FD, "")
+		defer func() {
+			_ = file.Close()
+		}()
 		ln, err = net.FileListener(file)
 		if err != nil {
 			err = fmt.Errorf("net.FileListener error: %v", err)
@@ -219,6 +224,7 @@ func (srv *HotServer) handleSignals() {
 优雅关闭后台
 */
 func (srv *HotServer) shutdown() {
+	srv.logf("HotServer shutdown")
 	if err := srv.Shutdown(context.Background()); err != nil {
 		srv.logf("HTTP server shutdown error: %v", err)
 	} else {
@@ -245,8 +251,10 @@ func (srv *HotServer) fork() (err error) {
 		Files: []uintptr{os.Stdin.Fd(), os.Stdout.Fd(), os.Stderr.Fd(), listener.Fd()},
 	}
 
+	srv.logf("HotServer do fork")
 	_, err = syscall.ForkExec(os.Args[0], os.Args, execSpec)
 	if err != nil {
+		_ = listener.Close()
 		return fmt.Errorf("Restart: Failed to launch, error: %v", err)
 	}
 
