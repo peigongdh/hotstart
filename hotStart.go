@@ -171,6 +171,7 @@ get lister
 */
 func (srv *HotServer) getNetListener(addr string) (ln net.Listener, err error) {
 	if srv.isChild {
+		// TODO: name not effect
 		file := os.NewFile(LISTENER_FD, "")
 		defer func() {
 			_ = file.Close()
